@@ -64,11 +64,17 @@ Open source (MIT): https://github.com/IsraelIyonsi/DeviceDeck
 
 ## Assets to upload
 
+Ready-made images are in `docs/store-assets/`:
+
 - **Icon:** `icons/icon128.png` (already in the package).
-- **Screenshots:** at least one, 1280x800 or 640x400 PNG/JPEG. Use a capture of
-  the panel showing the same page across three devices. A raw capture exists in
-  the repo history; crop or pad it to exactly 1280x800 before uploading.
-- **Small promo tile (optional):** 440x280.
+- **Screenshot (required):** `docs/store-assets/screenshot-1280x800.png` (exactly
+  1280x800, the panel showing one page across three devices).
+- **Small promo tile (optional):** `docs/store-assets/promo-440x280.png` (exactly
+  440x280).
+
+To regenerate after a UI change: recapture the panel and rerun the asset
+compositor (see the repo's asset tooling), or just re-crop a fresh capture to the
+exact sizes above.
 
 ## Submit
 
