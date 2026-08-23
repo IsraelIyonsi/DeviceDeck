@@ -28,8 +28,10 @@ device. Frames are scaled down to fit the panel with the zoom control.
 Some sites send an `X-Frame-Options` or `Content-Security-Policy` header that
 forbids being shown in a frame, which would make those pages render blank. A
 Manifest V3 `declarativeNetRequest` session rule removes those response headers
-from sub-frame requests so the preview works on real apps. The rule lives only
-in memory for the current browser session; nothing is stored or sent anywhere.
+from sub-frame requests so the preview works on real apps. The rule is installed
+only while a DeviceDeck view is open and removed the moment you close it, so it
+is never in effect when you are not using the tool. Nothing is stored or sent
+anywhere.
 
 Frames use a `sandbox` that keeps the page's own origin (so logged-in pages you
 are already signed into render normally) but withholds top-level navigation, so
@@ -62,9 +64,12 @@ are already signed into render normally) but withholds top-level navigation, so
   not emulated.
 - A page whose JavaScript aggressively breaks out of frames may still misbehave.
 - `chrome://`, `edge://`, and extension pages cannot be framed.
-- The frame-header rule currently applies to sub-frame responses browser-wide
-  while the session is active, not only to DeviceDeck's own frames. A future
-  version will scope it to the panel's frames. It never affects top-level pages.
+- The frame-header and mobile-UA rules are removed the moment you close every
+  DeviceDeck view, so they are never active when you are not using the tool.
+  While a view is open they do apply to sub-frame responses in the browser, not
+  only to DeviceDeck's own frames: MV3's header API exposes no per-frame
+  condition, and side-panel frames carry no tab id to scope by, so lifetime is
+  the tightest reliable boundary. Top-level pages are never affected.
 
 ## Development
 

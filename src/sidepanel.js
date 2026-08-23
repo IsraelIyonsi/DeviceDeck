@@ -245,6 +245,28 @@
     chrome.tabs.create({ url: target });
   }
 
+  let backgroundPort = null;
+
+  function connectToBackground() {
+    if (!hasChrome() || !chrome.runtime || !chrome.runtime.connect) {
+      return;
+    }
+    try {
+      backgroundPort = chrome.runtime.connect({ name: "devicedeck" });
+      backgroundPort.onDisconnect.addListener(() => {
+        // The worker cycled or the rules were cleared; reconnect so the frame
+        // rules are reinstalled while this view stays open.
+        backgroundPort = null;
+        setTimeout(connectToBackground, 500);
+      });
+      // Re-apply the current mobile-UA choice, since rules are cleared whenever
+      // no view is connected.
+      sendMobileUserAgent(state.mobileUa);
+    } catch (error) {
+      backgroundPort = null;
+    }
+  }
+
   function sendMobileUserAgent(enabled) {
     if (!hasChrome() || !chrome.runtime || !chrome.runtime.sendMessage) {
       return Promise.resolve();
@@ -304,8 +326,9 @@
     buildDeviceMenu();
     bindControls();
     watchActiveTab();
-    // Match the rule to the toggle's default (off) so the session starts clean.
-    sendMobileUserAgent(state.mobileUa);
+    // Register this view so the background installs the frame rules while it is
+    // open and removes them when it closes.
+    connectToBackground();
     loadInitialUrl();
   }
 
