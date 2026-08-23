@@ -8,6 +8,7 @@
   const DEVICES = window.DEVICES || [];
   const IFRAME_SANDBOX =
     "allow-scripts allow-same-origin allow-forms allow-popups allow-modals";
+  const MOBILE_UA_MARKER = "__ddua";
 
   const state = {
     url: "",
@@ -77,6 +78,14 @@
     return DEVICES.filter((device) => state.selected.has(device.id));
   }
 
+  function frameUrl(device) {
+    if (!state.mobileUa || !device.platform || device.platform === "desktop") {
+      return state.url;
+    }
+    const separator = state.url.includes("?") ? "&" : "?";
+    return state.url + separator + MOBILE_UA_MARKER + "=" + device.platform;
+  }
+
   function render() {
     const devices = selectedDevices();
     const showEmpty =
@@ -128,7 +137,7 @@
     iframe.style.height = height + "px";
     iframe.setAttribute("sandbox", IFRAME_SANDBOX);
     iframe.setAttribute("loading", "eager");
-    iframe.src = state.url;
+    iframe.src = frameUrl(device);
 
     viewport.appendChild(iframe);
     holder.appendChild(viewport);

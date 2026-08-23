@@ -58,10 +58,14 @@ are already signed into render normally) but withholds top-level navigation, so
 
 - Layout first. Width-based responsive sites, which is most of them, render
   correctly from the viewport width alone. For sites that pick their markup by
-  sniffing the user-agent, flip on **Mobile UA** to send a mobile User-Agent to
-  the framed pages. That single agent applies to every frame, so tablet frames
-  also identify as mobile while it is on. Touch and device-pixel-ratio are still
-  not emulated.
+  sniffing the user-agent, flip on **Mobile UA** to send each device its own
+  User-Agent (iPhone frames identify as iPhone, Android as Android, iPad as iPad;
+  desktop presets keep the real agent). To vary the agent per frame, while the
+  toggle is on each frame's document request carries a small `__ddua` marker
+  query param so the matching agent can be applied; it is absent when the toggle
+  is off. Only the request the server sees is changed; a page's own
+  `navigator.userAgent` (client-side) is not, and touch and device-pixel-ratio
+  are not emulated.
 - A page whose JavaScript aggressively breaks out of frames may still misbehave.
 - `chrome://`, `edge://`, and extension pages cannot be framed.
 - The frame-header and mobile-UA rules are removed the moment you close every

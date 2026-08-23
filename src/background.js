@@ -7,23 +7,49 @@
 //   2. While a DeviceDeck view is open, keep a session rule that strips the
 //      response headers some sites use to forbid being shown in a frame
 //      (X-Frame-Options and CSP), so protected pages do not render blank.
-//   3. On request from a view, toggle a session rule that sets a mobile
-//      User-Agent on framed requests.
+//   3. On request from a view, toggle per-device mobile User-Agent rules.
 //
-// Scoping: MV3's declarativeNetRequest cannot target only the iframes this
-// extension creates (there is no per-frame condition, and side-panel frames
-// carry no tab id to match on). So the rules are scoped by lifetime instead:
-// they exist only while at least one DeviceDeck view is connected, and are
-// removed the moment the last one closes. Everything is session-only and local;
-// nothing is stored or sent anywhere.
+// Per-device User-Agent: the request User-Agent can only be set at the network
+// layer, and declarativeNetRequest applies to every framed request identically
+// (there is no per-frame condition). To vary it per device, each frame's URL
+// carries a marker query param (for example __ddua=iphone) while the toggle is
+// on, and one rule per platform matches that marker and sets the matching agent.
+//
+// Scoping: MV3 cannot target only this extension's own frames, so the rules are
+// scoped by lifetime: they exist only while a DeviceDeck view is connected and
+// are removed when the last one closes. Everything is session-only and local.
 
 const FRAME_HEADER_RULE_ID = 1;
-const MOBILE_UA_RULE_ID = 2;
 const PORT_NAME = "devicedeck";
+const MOBILE_UA_MARKER = "__ddua";
 
-const MOBILE_USER_AGENT =
-  "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) " +
-  "AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1";
+// Rule ids 2+ belong to the per-platform User-Agent rules.
+const USER_AGENTS = [
+  {
+    id: 2,
+    token: "iphone",
+    ua:
+      "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) " +
+      "AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1"
+  },
+  {
+    id: 3,
+    token: "android",
+    ua:
+      "Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 " +
+      "(KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36"
+  },
+  {
+    id: 4,
+    token: "ipad",
+    ua:
+      "Mozilla/5.0 (iPad; CPU OS 17_0 like Mac OS X) " +
+      "AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1"
+  }
+];
+
+const USER_AGENT_RULE_IDS = USER_AGENTS.map((entry) => entry.id);
+const ALL_RULE_IDS = [FRAME_HEADER_RULE_ID, ...USER_AGENT_RULE_IDS];
 
 const FRAME_HEADER_RULE = {
   id: FRAME_HEADER_RULE_ID,
@@ -39,18 +65,21 @@ const FRAME_HEADER_RULE = {
   condition: { resourceTypes: ["sub_frame"] }
 };
 
-function mobileUserAgentRule() {
-  return {
-    id: MOBILE_UA_RULE_ID,
+function userAgentRules() {
+  return USER_AGENTS.map((entry) => ({
+    id: entry.id,
     priority: 1,
     action: {
       type: "modifyHeaders",
       requestHeaders: [
-        { header: "user-agent", operation: "set", value: MOBILE_USER_AGENT }
+        { header: "user-agent", operation: "set", value: entry.ua }
       ]
     },
-    condition: { resourceTypes: ["sub_frame"] }
-  };
+    condition: {
+      resourceTypes: ["sub_frame"],
+      urlFilter: `${MOBILE_UA_MARKER}=${entry.token}`
+    }
+  }));
 }
 
 // Views (side panel and any open-in-tab decks) currently connected.
@@ -70,7 +99,7 @@ async function enableFrameHeaderRule() {
 async function clearAllRules() {
   try {
     await chrome.declarativeNetRequest.updateSessionRules({
-      removeRuleIds: [FRAME_HEADER_RULE_ID, MOBILE_UA_RULE_ID],
+      removeRuleIds: ALL_RULE_IDS,
       addRules: []
     });
   } catch (error) {
@@ -79,13 +108,13 @@ async function clearAllRules() {
 }
 
 async function setMobileUserAgent(enabled) {
-  // Only meaningful while a view is open; if none is, there is nothing to strip.
+  // Only meaningful while a view is open; if none is, there is nothing to set.
   if (openViews.size === 0) {
     return;
   }
   await chrome.declarativeNetRequest.updateSessionRules({
-    removeRuleIds: [MOBILE_UA_RULE_ID],
-    addRules: enabled ? [mobileUserAgentRule()] : []
+    removeRuleIds: USER_AGENT_RULE_IDS,
+    addRules: enabled ? userAgentRules() : []
   });
 }
 
