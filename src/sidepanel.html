@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>DeviceDeck</title>
+    <link rel="stylesheet" href="sidepanel.css" />
+  </head>
+  <body>
+    <header class="toolbar">
+      <div class="row">
+        <input
+          id="url"
+          class="url"
+          type="text"
+          spellcheck="false"
+          autocomplete="off"
+          placeholder="https://example.com"
+          aria-label="Address to preview"
+        />
+        <button id="reload" class="icon-btn" title="Reload frames" aria-label="Reload frames">&#x21bb;</button>
+      </div>
+      <div class="row controls">
+        <button id="devices-btn" class="btn" aria-haspopup="true" aria-expanded="false">Devices</button>
+        <button id="rotate" class="btn" title="Rotate orientation">Rotate</button>
+        <label class="zoom">
+          <span id="zoom-label">65%</span>
+          <input id="zoom" type="range" min="25" max="100" step="5" value="65" aria-label="Zoom" />
+        </label>
+        <label class="follow">
+          <input id="follow" type="checkbox" checked />
+          <span>Follow tab</span>
+        </label>
+        <button id="open-tab" class="btn" title="Open this deck in a full browser tab">Open in tab</button>
+      </div>
+      <div id="device-menu" class="device-menu" hidden></div>
+    </header>
+
+    <main id="frames" class="frames" aria-live="polite"></main>
+
+    <div id="empty" class="empty" hidden>
+      <p id="empty-text">Open a normal web page, then click DeviceDeck.</p>
+    </div>
+
+    <script src="devices.js"></script>
+    <script src="sidepanel.js"></script>
+  </body>
+</html>
