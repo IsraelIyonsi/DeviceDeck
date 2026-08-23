@@ -14,7 +14,8 @@
     selected: new Set(window.DEFAULT_DEVICE_IDS || []),
     zoom: 0.65,
     landscape: false,
-    follow: true
+    follow: true,
+    mobileUa: false
   };
 
   const els = {};
@@ -29,6 +30,7 @@
       "zoom",
       "zoom-label",
       "follow",
+      "mobile-ua",
       "open-tab",
       "frames",
       "empty",
@@ -216,6 +218,12 @@
       }
     });
 
+    els["mobile-ua"].addEventListener("change", async () => {
+      state.mobileUa = els["mobile-ua"].checked;
+      await sendMobileUserAgent(state.mobileUa);
+      render(); // reload the frames so the request re-fires with the new agent
+    });
+
     els["open-tab"].addEventListener("click", openInTab);
   }
 
@@ -235,6 +243,22 @@
       ? `${base}?url=${encodeURIComponent(state.url)}`
       : base;
     chrome.tabs.create({ url: target });
+  }
+
+  function sendMobileUserAgent(enabled) {
+    if (!hasChrome() || !chrome.runtime || !chrome.runtime.sendMessage) {
+      return Promise.resolve();
+    }
+    return new Promise((resolve) => {
+      try {
+        chrome.runtime.sendMessage({ type: "setMobileUserAgent", enabled }, () => {
+          void chrome.runtime.lastError;
+          resolve();
+        });
+      } catch (error) {
+        resolve();
+      }
+    });
   }
 
   async function syncToActiveTab() {
@@ -280,6 +304,8 @@
     buildDeviceMenu();
     bindControls();
     watchActiveTab();
+    // Match the rule to the toggle's default (off) so the session starts clean.
+    sendMobileUserAgent(state.mobileUa);
     loadInitialUrl();
   }
 

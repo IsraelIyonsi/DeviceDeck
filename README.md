@@ -54,10 +54,12 @@ are already signed into render normally) but withholds top-level navigation, so
 
 ## Known limits (MVP)
 
-- Layout only. It does not emulate touch, device pixel ratio, or a mobile user
-  agent, so a site that serves different HTML purely by sniffing the user-agent
-  string may still show its desktop markup. Width-based responsive sites, which
-  is most of them, render correctly.
+- Layout first. Width-based responsive sites, which is most of them, render
+  correctly from the viewport width alone. For sites that pick their markup by
+  sniffing the user-agent, flip on **Mobile UA** to send a mobile User-Agent to
+  the framed pages. That single agent applies to every frame, so tablet frames
+  also identify as mobile while it is on. Touch and device-pixel-ratio are still
+  not emulated.
 - A page whose JavaScript aggressively breaks out of frames may still misbehave.
 - `chrome://`, `edge://`, and extension pages cannot be framed.
 - The frame-header rule currently applies to sub-frame responses browser-wide

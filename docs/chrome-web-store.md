@@ -2,7 +2,7 @@
 
 Everything needed to list DeviceDeck. Copy the fields straight into the
 Developer Dashboard. The store package is the release ZIP:
-`DeviceDeck-0.1.0.zip` (attached to the v0.1.0 GitHub release, manifest at root).
+`DeviceDeck-0.2.0.zip` (attached to the latest GitHub release, manifest at root).
 
 ## One-time setup (developer only)
 
@@ -78,7 +78,7 @@ exact sizes above.
 
 ## Submit
 
-Upload `DeviceDeck-0.1.0.zip`, fill the fields above, then Submit for review.
+Upload `DeviceDeck-0.2.0.zip`, fill the fields above, then Submit for review.
 Reviews typically take a few days. Bumps: raise `version` in `manifest.json`,
 re-zip, and upload a new package.
 
