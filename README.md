@@ -53,6 +53,8 @@ are already signed into render normally) but withholds top-level navigation, so
   frame-blocking headers described above, on whatever site you choose to
   preview. This is what lets it work on any page. It is used for nothing else,
   and no page data ever leaves your browser.
+- `storage` — to remember which devices you last selected, saved locally on your
+  machine. Nothing else is stored, and it is never transmitted.
 
 ## Known limits (MVP)
 

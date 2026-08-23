@@ -2,7 +2,7 @@
 
 Everything needed to list DeviceDeck. Copy the fields straight into the
 Developer Dashboard. The store package is the release ZIP:
-`DeviceDeck-0.3.0.zip` (attached to the latest GitHub release, manifest at root).
+`DeviceDeck-0.3.1.zip` (attached to the latest GitHub release, manifest at root).
 
 ## One-time setup (developer only)
 
@@ -61,6 +61,8 @@ Open source (MIT): https://github.com/IsraelIyonsi/DeviceDeck
 - **Host permission `<all_urls>`:** The preview must work on whatever site the
   user chooses to test, and removing the frame-blocking headers on that site
   requires host access to it. No page content is read, stored, or transmitted.
+- **storage:** Remembers which devices the user last selected, stored locally on
+  the device. No other data is stored, and nothing is transmitted.
 
 ## Assets to upload
 
@@ -78,7 +80,7 @@ exact sizes above.
 
 ## Submit
 
-Upload `DeviceDeck-0.3.0.zip`, fill the fields above, then Submit for review.
+Upload `DeviceDeck-0.3.1.zip`, fill the fields above, then Submit for review.
 Reviews typically take a few days. Bumps: raise `version` in `manifest.json`,
 re-zip, and upload a new package.
 

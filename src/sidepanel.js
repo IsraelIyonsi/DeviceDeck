@@ -41,8 +41,47 @@
     }
   }
 
+  const STORAGE_KEY = "selectedDevices";
+
   function hasChrome() {
     return typeof chrome !== "undefined" && chrome.tabs && chrome.tabs.query;
+  }
+
+  function hasStorage() {
+    return (
+      typeof chrome !== "undefined" &&
+      chrome.storage &&
+      chrome.storage.local
+    );
+  }
+
+  async function loadSelection() {
+    if (!hasStorage()) {
+      return;
+    }
+    try {
+      const stored = await chrome.storage.local.get(STORAGE_KEY);
+      const ids = stored && stored[STORAGE_KEY];
+      if (Array.isArray(ids)) {
+        const valid = ids.filter((id) => DEVICES.some((device) => device.id === id));
+        if (valid.length > 0) {
+          state.selected = new Set(valid);
+        }
+      }
+    } catch (error) {
+      // Fall back to the defaults if storage is unavailable.
+    }
+  }
+
+  function saveSelection() {
+    if (!hasStorage()) {
+      return;
+    }
+    try {
+      chrome.storage.local.set({ [STORAGE_KEY]: [...state.selected] });
+    } catch (error) {
+      // Persistence is best-effort; ignore failures.
+    }
   }
 
   function isFramableUrl(url) {
@@ -173,6 +212,7 @@
           } else {
             state.selected.delete(device.id);
           }
+          saveSelection();
           render();
         });
         const text = document.createElement("span");
@@ -330,8 +370,9 @@
     }
   }
 
-  function init() {
+  async function init() {
     cacheElements();
+    await loadSelection();
     buildDeviceMenu();
     bindControls();
     watchActiveTab();

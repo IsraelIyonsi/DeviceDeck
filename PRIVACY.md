@@ -19,8 +19,9 @@ Specifically:
   your browser, so pages that would otherwise refuse to load in a frame can be
   previewed. This modification happens on your device and no request or response
   content is read, retained, or transmitted by the extension.
-- **Device selection.** Your chosen device list is kept only in the panel for the
-  current session.
+- **Device selection.** Your chosen device list is saved locally on your machine
+  (via the browser's extension storage) so it is remembered next time. It stays
+  on your device and is never transmitted.
 
 Because DeviceDeck processes no personal data off your device, there is nothing
 to request, export, or delete.
